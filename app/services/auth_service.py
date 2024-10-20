@@ -1,8 +1,10 @@
 from datetime import datetime, timedelta
 
 import jwt
+from fastapi import HTTPException
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
+from starlette import status
 
 from app.models.user import User
 from app.repositories.user_repository import UserRepository
@@ -26,6 +28,12 @@ class AuthService:
         return pwd_context.hash(password)
 
     def create_user(self, user_create: UserCreate):
+        existing_user = self.user_repository.get_user_by_email(user_create.email)
+        if existing_user:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="User with that email already"
+            )
         user = User(
             name=user_create.name,
             email=user_create.email,

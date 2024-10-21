@@ -41,13 +41,19 @@ class AuthService:
         )
         return self.user_repository.create_user(user)
 
-    def get_profile(self, user_id: int):
-        user = self.user_repository.get_user_by_id(user_id)
+    def get_profile(self, user_id: int = None, user_name: str = None):
+        if user_id:
+            user = self.user_repository.get_user_by_id(user_id)
+        elif user_name:
+            user = self.user_repository.get_user_by_name(user_name)
+        else:
+            raise HTTPException(status_code=400, detail="User ID or name must be provided")
+
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
 
-        subscriptions = self.user_repository.get_subscriptions(user_id)
-        subscribers = self.user_repository.get_subscribers(user_id)
+        subscriptions = self.user_repository.get_subscriptions(user.id)
+        subscribers = self.user_repository.get_subscribers(user.id)
 
         user_response = UserResponse(
             id=user.id,

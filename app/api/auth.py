@@ -32,9 +32,16 @@ def signin(req: UserLoginRequest, db: Session = Depends(get_db)):
 
 
 @router.get("/profile", response_model=UserResponse)
-def get_profile(db: Session = Depends(get_db), current_user: UserResponse = Depends(get_current_user)):
+def get_profile(
+        username: str = None,
+        db: Session = Depends(get_db),
+        current_user: UserResponse = Depends(get_current_user)
+):
     service = AuthService(db)
-    return service.get_profile(current_user.id)
+    if username:
+        return service.get_profile(user_name=username)
+    else:
+        return service.get_profile(user_id=current_user.id)
 
 
 @router.put("/updateProfile", response_model=UserResponse)

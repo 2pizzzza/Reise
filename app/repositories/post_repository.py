@@ -1,7 +1,10 @@
-from fastapi import HTTPException
-from sqlalchemy.orm import Session
+import os
+from uuid import uuid4
 
-from app.models.post import Post
+from fastapi import HTTPException, UploadFile
+from sqlalchemy.orm import Session, joinedload
+
+from app.models.post import Post, Photo
 from app.schemas.post import PostCreate
 
 
@@ -10,11 +13,34 @@ class PostRepository:
         self.db = db
 
     def create_post(self, post: PostCreate, author_id: int, country_id: int) -> Post:
-        db_post = Post(**post.dict(exclude={"country_name"}), author_id=author_id, country_id=country_id)
+        db_post = Post(**post.dict(exclude={"country_name", "images"}), author_id=author_id, country_id=country_id)
         self.db.add(db_post)
         self.db.commit()
         self.db.refresh(db_post)
+
+        for image in post.images:
+            self.save_photo(db_post.id, image)
+
         return db_post
+
+    def save_photo(self, post_id: int, image: UploadFile):
+        existing_photos = self.db.query(Photo).filter(Photo.post_id == post_id).count()
+        if existing_photos >= 10:
+            raise HTTPException(status_code=400, detail="Post can't have more than 10 photos.")
+
+        if image.size > 5 * 1024 * 1024:
+            raise HTTPException(status_code=400, detail="Each image must be less than 5 MB.")
+
+        image_filename = f"{uuid4()}.jpg"
+        image_path = os.path.join("static/media/img", image_filename)
+
+        with open(image_path, "wb") as buffer:
+            buffer.write(image.file.read())
+
+        photo = Photo(post_id=post_id, image=image_path)
+        self.db.add(photo)
+        self.db.commit()
+        self.db.refresh(photo)
 
     def update_post(self, post_id: int, post_data: PostCreate) -> Post:
         db_post = self.db.query(Post).filter(Post.id == post_id).first()
@@ -33,4 +59,9 @@ class PostRepository:
         return db_post
 
     def get_post(self, post_id: int) -> Post:
-        return self.db.query(Post).filter(Post.id == post_id).first()
+        return (
+            self.db.query(Post)
+            .options(joinedload(Post.photos))
+            .filter(Post.id == post_id)
+            .first()
+        )

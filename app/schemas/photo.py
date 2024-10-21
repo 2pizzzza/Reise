@@ -1,14 +1,14 @@
+from fastapi import UploadFile
 from pydantic import BaseModel
 from typing import Optional
 
 
 class PhotoCreate(BaseModel):
-    image: str
-
+    image: UploadFile
 
 class PhotoResponse(PhotoCreate):
     id: int
-    post_id: int
+    image: str
 
     class Config:
         orm_mode = True

@@ -1,6 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from typing import List
+
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form
 from sqlalchemy.orm import Session
-from app.schemas.post import PostCreate, Post
+from app.schemas.post import PostCreate, Post, PostResponse
 from app.repositories.post_repository import PostRepository
 from app.db.database import get_db
 from app.api.auth import get_current_user
@@ -11,9 +13,23 @@ router = APIRouter()
 
 
 @router.post("/posts/", response_model=Post)
-def create_post(post: PostCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+async def create_post(
+    title: str = Form(...),
+    body: str = Form(...),
+    country_name: str = Form(...),
+    images: List[UploadFile] = File(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    post_data = PostCreate(
+        title=title,
+        body=body,
+        country_name=country_name,
+        images=images
+    )
+
     post_service = PostService(db)
-    db_post = post_service.create_post(post, author_id=current_user.id)
+    db_post = post_service.create_post(post_data, author_id=current_user.id)
 
     return {
         "id": db_post.id,
@@ -26,7 +42,7 @@ def create_post(post: PostCreate, db: Session = Depends(get_db), current_user: U
     }
 
 
-@router.get("/posts/{post_id}")
+@router.get("/posts/{post_id}", response_model=PostResponse)
 def read_post(post_id: int, db: Session = Depends(get_db)):
     post_service = PostService(db)
     post = post_service.get_post(post_id)

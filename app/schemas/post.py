@@ -1,5 +1,6 @@
 from typing import List
 
+from fastapi import UploadFile
 from pydantic import BaseModel
 from datetime import datetime
 
@@ -12,10 +13,11 @@ class PostBase(BaseModel):
     is_visible: bool = True
 
 
-class PostCreate(PostBase):
+class PostCreate(BaseModel):
+    title: str
+    body: str
     country_name: str
-    country_name: str
-    images: List[str] = []
+    images: List[UploadFile]
 
 
 class Post(PostBase):
@@ -28,9 +30,14 @@ class Post(PostBase):
         orm_mode = True
 
 
-class PostResponse(PostBase):
-    country_id: int
-    photos: List[PhotoResponse] = []
+class PostResponse(BaseModel):
+    id: int
+    title: str
+    body: str
+    is_visible: bool
+    created_at: datetime
+    author_id: int
+    photos: List[PhotoResponse]
 
     class Config:
         orm_mode = True

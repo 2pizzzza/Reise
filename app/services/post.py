@@ -18,7 +18,6 @@ class PostService:
         self.country_repository = CountryRepository(db)
 
     def create_post(self, post: PostCreate, author_id: int) -> Post:
-
         user = self.user_repository.get_user_by_id(author_id)
         if not user.can_post:
             raise HTTPException(

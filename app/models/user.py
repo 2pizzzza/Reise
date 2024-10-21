@@ -2,7 +2,7 @@ from sqlalchemy import Table, Column, Integer, String, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
 
 from app.db.database import Base
-
+from app.models.post import Post
 
 class User(Base):
     __tablename__ = 'users'
@@ -16,23 +16,19 @@ class User(Base):
     can_post = Column(Boolean, default=True)
 
     posts = relationship('Post', back_populates='author')
-    comments = relationship('Comment', back_populates='author')
-    ratings = relationship('Rating', back_populates='user')
-    subscriptions = relationship('Subscription', back_populates='user')
 
 
-class Subscription(Base):
-    __tablename__ = 'subscriptions'
-
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
-    target_user_id = Column(Integer, ForeignKey('users.id'), nullable=True)
-    country_id = Column(Integer, ForeignKey('countries.id'), nullable=True)
-    tag_id = Column(Integer, ForeignKey('tags.id'), nullable=True)
-
-    user = relationship('User', foreign_keys=[user_id], back_populates='subscriptions')
-    target_user = relationship('User', foreign_keys=[target_user_id])
-
+# class Subscription(Base):
+#     __tablename__ = 'subscriptions'
+#
+#     id = Column(Integer, primary_key=True, index=True)
+#     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+#     target_user_id = Column(Integer, ForeignKey('users.id'), nullable=True)
+#     country_id = Column(Integer, ForeignKey('countries.id'), nullable=True)
+#
+#     user = relationship('User', foreign_keys=[user_id], back_populates='subscriptions')
+#     target_user = relationship('User', foreign_keys=[target_user_id])
+#
 
 # users = Table(
 #     "users",

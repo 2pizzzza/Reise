@@ -7,11 +7,9 @@ from alembic import context
 
 from app.core.config import DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASS
 from app.db.database import Base
-from app.models.user import User, Subscription
-from app.models.comment import Comment
-from app.models.rating import Rating
+from app.models.user import User
+from app.models.post import Post, Photo
 from app.models.country import Country
-from app.models.post import Post, Photo, Tag
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

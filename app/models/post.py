@@ -16,11 +16,10 @@ class Post(Base):
     is_visible = Column(Boolean, default=True)
 
     author = relationship('User', back_populates='posts')
+
     country = relationship('Country', back_populates='posts')
-    tags = relationship('Tag', secondary='post_tags', back_populates='posts')
-    comments = relationship('Comment', back_populates='post')
-    ratings = relationship('Rating', back_populates='post')
-    photos = relationship('Photo', back_populates='post')
+
+    photos = relationship('Photo', back_populates='post', cascade="all, delete-orphan")
 
 
 class Photo(Base):
@@ -31,14 +30,8 @@ class Photo(Base):
     image = Column(String, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
+    post = relationship('Post', back_populates='photos')
 
-class Tag(Base):
-    __tablename__ = 'tags'
-
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, unique=True, nullable=False)
-
-    posts = relationship('Post', secondary='post_tags', back_populates='tags')
 
 
 # post_tags = Table(

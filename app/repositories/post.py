@@ -2,10 +2,12 @@ import os
 from uuid import uuid4
 
 from fastapi import HTTPException, UploadFile
+from sqlalchemy import func
 from sqlalchemy.orm import Session, joinedload
 
 from app.models.post import Post, Photo
 from app.schemas.post import PostCreate
+from app.models.vote import Vote
 
 
 class PostRepository:
@@ -57,6 +59,17 @@ class PostRepository:
             self.db.delete(db_post)
             self.db.commit()
         return db_post
+
+    def get_vote_count(self, post_id: int) -> dict:
+        # Подсчет лайков и дизлайков
+        vote_counts = (
+            self.db.query(Vote.vote_type, func.count(Vote.id).label("count"))
+            .filter(Vote.post_id == post_id)
+            .group_by(Vote.vote_type)
+            .all()
+        )
+
+        return {vote_type: count for vote_type, count in vote_counts}
 
     def get_post(self, post_id: int) -> Post:
         return (

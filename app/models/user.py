@@ -16,6 +16,8 @@ class User(Base):
     can_post = Column(Boolean, default=True)
 
     posts = relationship('Post', back_populates='author')
+    comments = relationship("Comment", back_populates="author", cascade="all, delete-orphan")
+    votes = relationship("Vote", back_populates="user", cascade="all, delete-orphan")
 
 
 # class Subscription(Base):

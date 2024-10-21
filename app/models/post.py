@@ -16,10 +16,10 @@ class Post(Base):
     is_visible = Column(Boolean, default=True)
 
     author = relationship('User', back_populates='posts')
-
     country = relationship('Country', back_populates='posts')
-
     photos = relationship('Photo', back_populates='post', cascade="all, delete-orphan")
+    comments = relationship("Comment", back_populates="post", cascade="all, delete-orphan")
+    votes = relationship("Vote", back_populates="post", cascade="all, delete-orphan")
 
 
 class Photo(Base):

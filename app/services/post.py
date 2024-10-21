@@ -2,12 +2,12 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from starlette import status
 
-from app.repositories.post_repository import PostRepository
-from app.repositories.country_repository import CountryRepository
+from app.repositories.post import PostRepository
+from app.repositories.country import CountryRepository
 from app.schemas.post import PostCreate
 from app.schemas.country import CountryCreate
 from app.models.post import Post
-from app.repositories.user_repository import UserRepository
+from app.repositories.user import UserRepository
 
 
 class PostService:
@@ -41,6 +41,9 @@ class PostService:
                 detail="Post not found"
             )
         return "Post deleted"
+
+    def get_post_vote_counts(self, post_id: int) -> dict:
+        return self.post_repository.get_vote_count(post_id)
 
     def get_post(self, post_id: int):
         post = self.post_repository.get_post(post_id)

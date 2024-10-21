@@ -8,7 +8,7 @@ from starlette import status
 
 from app.models.user import User
 from app.repositories.user import UserRepository
-from app.schemas.user import UserCreate
+from app.schemas.user import UserCreate, UserResponse, SubscriptionSummary
 
 SECRET_KEY = "your_secret_key"
 ALGORITHM = "HS256"
@@ -40,6 +40,25 @@ class AuthService:
             hashed_password=self.get_password_hash(user_create.password)
         )
         return self.user_repository.create_user(user)
+
+    def get_profile(self, user_id: int):
+        user = self.user_repository.get_user_by_id(user_id)
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        subscriptions = self.user_repository.get_subscriptions(user_id)
+        subscribers = self.user_repository.get_subscribers(user_id)
+
+        user_response = UserResponse(
+            id=user.id,
+            name=user.name,
+            email=user.email,
+            is_active=user.is_active,
+            is_admin=user.is_admin,
+            subscriptions=[SubscriptionSummary(id=sub.id, name=sub.name, email=sub.email) for sub in subscriptions],
+            subscribers=[SubscriptionSummary(id=sub.id, name=sub.name, email=sub.email) for sub in subscribers],
+        )
+        return user_response
 
     def create_access_token(self, data: dict, expires_delta: timedelta = None):
         to_encode = data.copy()

@@ -1,8 +1,20 @@
-from sqlalchemy import Table, Column, Integer, String, Boolean, ForeignKey
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
 
 from app.db.database import Base
-from app.models.post import Post
+
+
+class Subscription(Base):
+    __tablename__ = 'subscriptions'
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    target_user_id = Column(Integer, ForeignKey('users.id'), nullable=True)
+    country_id = Column(Integer, ForeignKey('countries.id'), nullable=True)
+
+    user = relationship('User', foreign_keys=[user_id], back_populates='subscriptions')
+    target_user = relationship('User', foreign_keys=[target_user_id])
+
 
 class User(Base):
     __tablename__ = 'users'
@@ -19,37 +31,7 @@ class User(Base):
     comments = relationship("Comment", back_populates="author", cascade="all, delete-orphan")
     votes = relationship("Vote", back_populates="user", cascade="all, delete-orphan")
 
-
-# class Subscription(Base):
-#     __tablename__ = 'subscriptions'
-#
-#     id = Column(Integer, primary_key=True, index=True)
-#     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
-#     target_user_id = Column(Integer, ForeignKey('users.id'), nullable=True)
-#     country_id = Column(Integer, ForeignKey('countries.id'), nullable=True)
-#
-#     user = relationship('User', foreign_keys=[user_id], back_populates='subscriptions')
-#     target_user = relationship('User', foreign_keys=[target_user_id])
-#
-
-# users = Table(
-#     "users",
-#     metadata,
-#     Column("id", Integer, primary_key=True),
-#     Column("email", String, nullable=False, unique=True),
-#     Column("name", String, nullable=False),
-#     Column("hashed_password", String, nullable=False),
-#     Column("is_active", Boolean, default=False),
-#     Column("is_admin", Boolean, default=False),
-#     Column("can_post", Boolean, default=True)
-# )
-#
-# subscriptions = Table(
-#     "subscriptions",
-#     metadata,
-#     Column("id", Integer, primary_key=True),
-#     Column("user_id", Integer, ForeignKey('users.id'), nullable=False),
-#     Column("target_user_id", Integer, ForeignKey('users.id'), nullable=True),
-#     Column("country_id", Integer, ForeignKey('countries.id'), nullable=True),
-#     Column("tag_id", Integer, ForeignKey('tags.id'), nullable=True)
-# )
+    subscriptions = relationship('Subscription', foreign_keys=[Subscription.user_id], back_populates='user',
+                                 cascade="all, delete-orphan")
+    subscribers = relationship('Subscription', foreign_keys=[Subscription.target_user_id], back_populates='target_user',
+                               cascade="all, delete-orphan")

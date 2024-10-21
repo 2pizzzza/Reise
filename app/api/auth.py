@@ -4,14 +4,18 @@ from app.schemas.user import UserCreate, UserResponse, UserLoginRequest
 from app.services.auth import AuthService
 from app.db.database import get_db
 from app.core.security import get_current_user
+from app.schemas.subscription import SubscriptionResponse, SubscriptionRequest
+from app.services.subscription import SubscriptionService
 
 router = APIRouter()
+
 
 @router.post("/signup", response_model=UserResponse)
 def signup(user_create: UserCreate, db: Session = Depends(get_db)):
     auth_service = AuthService(db)
     user = auth_service.create_user(user_create)
     return UserResponse.from_orm(user)
+
 
 @router.post("/signin")
 def signin(req: UserLoginRequest, db: Session = Depends(get_db)):
@@ -26,11 +30,28 @@ def signin(req: UserLoginRequest, db: Session = Depends(get_db)):
     access_token = auth_service.create_access_token({"sub": user.email})
     return {"access_token": access_token, "token_type": "bearer"}
 
+
 @router.get("/profile", response_model=UserResponse)
-def get_profile(current_user: UserResponse = Depends(get_current_user)):
-    return current_user
+def get_profile(db: Session = Depends(get_db), current_user: UserResponse = Depends(get_current_user)):
+    service = AuthService(db)
+    return service.get_profile(current_user.id)
+
 
 @router.put("/updateProfile", response_model=UserResponse)
 def update_profile(
         user_update: UserCreate, db: Session = Depends(get_db), current_user: UserResponse = Depends(get_current_user)):
     return current_user
+
+
+@router.post("/subscribe", response_model=SubscriptionResponse)
+def subscribe(subscription_request: SubscriptionRequest, db: Session = Depends(get_db),
+              current_user: UserResponse = Depends(get_current_user)):
+    service = SubscriptionService(db)
+    return service.subscribe(current_user.id, subscription_request.target_user_id)
+
+
+@router.post("/unsubscribe", status_code=204)
+def unsubscribe(subscription_request: SubscriptionRequest, db: Session = Depends(get_db),
+                current_user: UserResponse = Depends(get_current_user)):
+    service = SubscriptionService(db)
+    service.unsubscribe(current_user.id, subscription_request.target_user_id)

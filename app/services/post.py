@@ -8,6 +8,7 @@ from app.schemas.post import PostCreate
 from app.schemas.country import CountryCreate
 from app.models.post import Post
 from app.repositories.user import UserRepository
+from app.repositories.tag import TagRepository
 
 
 class PostService:
@@ -16,19 +17,28 @@ class PostService:
         self.user_repository = UserRepository(db)
         self.post_repository = PostRepository(db)
         self.country_repository = CountryRepository(db)
+        self.tag_repository = TagRepository(db)
 
     def create_post(self, post: PostCreate, author_id: int) -> Post:
         user = self.user_repository.get_user_by_id(author_id)
         if not user.can_post:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="You do not have permission to create a post"
-            )
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                                detail="You do not have permission to create a post")
+
         country = self.country_repository.get_country_by_name(post.country_name)
         if country is None:
             country = self.country_repository.create_country(CountryCreate(name=post.country_name))
 
-        return self.post_repository.create_post(post, author_id=author_id, country_id=country.id)
+        db_post = self.post_repository.create_post(post, author_id=author_id, country_id=country.id)
+
+        for tag_name in post.tags:
+            tag = self.tag_repository.get_or_create_tag(tag_name)
+            db_post.tags.append(tag)
+
+        self.db.commit()
+        self.db.refresh(db_post)
+
+        return db_post
 
     def update_post(self, post_id: int, post_data: PostCreate):
         return self.post_repository.update_post(post_id, post_data)

@@ -20,6 +20,7 @@ class Post(Base):
     photos = relationship('Photo', back_populates='post', cascade="all, delete-orphan")
     comments = relationship("Comment", back_populates="post", cascade="all, delete-orphan")
     votes = relationship("Vote", back_populates="post", cascade="all, delete-orphan")
+    tags = relationship("Tag", secondary='post_tags', back_populates="posts")
 
 
 class Photo(Base):
@@ -33,31 +34,17 @@ class Photo(Base):
     post = relationship('Post', back_populates='photos')
 
 
+class PostTag(Base):
+    __tablename__ = 'post_tags'
 
-# post_tags = Table(
-#     'post_tags',
-#     Base.metadata,
-#     Column('post_id', Integer, ForeignKey('posts.id'), primary_key=True),
-#     Column('tag_id', Integer, ForeignKey('tags.id'), primary_key=True)
-# )
-#
-# posts = Table(
-#     "posts",
-#     metadata,
-#     Column("id", Integer, primary_key=True),
-#     Column("author_id", Integer, ForeignKey('users.id'), nullable=False),
-#     Column("country_id", Integer, ForeignKey('countries.id'), nullable=False),
-#     Column("title", String, nullable=False),
-#     Column("body", Text, nullable=False),
-#     Column("created_at", DateTime, default=datetime.utcnow),
-#     Column("is_visible", Boolean, default=True)
-# )
-#
-# photos = Table(
-#     "photos",
-#     metadata,
-#     Column("id", Integer, primary_key=True),
-#     Column("post_id", Integer, ForeignKey('posts.id'), nullable=False),
-#     Column("image", String, nullable=False),
-#     Column("created_at", DateTime, default=datetime.utcnow)
-# )
+    post_id = Column(Integer, ForeignKey('posts.id'), primary_key=True)
+    tag_id = Column(Integer, ForeignKey('tags.id'), primary_key=True)
+
+
+class Tag(Base):
+    __tablename__ = 'tags'
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False, unique=True)
+
+    posts = relationship("Post", secondary='post_tags', back_populates='tags')

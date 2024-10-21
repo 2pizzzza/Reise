@@ -20,15 +20,19 @@ async def create_post(
         title: str = Form(...),
         body: str = Form(...),
         country_name: str = Form(...),
+        tags: str = Form(...),
         images: List[UploadFile] = File(...),
         db: Session = Depends(get_db),
         current_user: User = Depends(get_current_user)
 ):
+    tag_list = [tag.strip() for tag in tags.split(",") if tag.strip()]
+
     post_data = PostCreate(
         title=title,
         body=body,
         country_name=country_name,
-        images=images
+        images=images,
+        tags=tag_list
     )
 
     post_service = PostService(db)
@@ -41,7 +45,9 @@ async def create_post(
         "author_id": db_post.author_id,
         "created_at": db_post.created_at,
         "is_visible": db_post.is_visible,
-        "country_name": db_post.country.name
+        "tags": [tag.name for tag in db_post.tags],
+        "country_name": db_post.country.name,
+        "photos": [{"id": photo.id, "url": f"/static/media/img/{photo.image}"} for photo in db_post.photos]
     }
 
 

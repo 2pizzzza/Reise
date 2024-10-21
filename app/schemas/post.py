@@ -18,6 +18,7 @@ class PostCreate(BaseModel):
     body: str
     country_name: str
     images: List[UploadFile]
+    tags: List[str] = []
 
 
 class Post(PostBase):
@@ -25,6 +26,18 @@ class Post(PostBase):
     created_at: datetime
     author_id: int
     country_name: str
+
+    class Config:
+        orm_mode = True
+
+
+class TagCreate(BaseModel):
+    name: str
+
+
+class TagResponse(BaseModel):
+    id: int
+    name: str
 
     class Config:
         orm_mode = True
@@ -38,6 +51,7 @@ class PostResponse(BaseModel):
     created_at: datetime
     author_id: int
     photos: List[PhotoResponse]
+    tags: List[TagResponse] = []
 
     class Config:
         orm_mode = True

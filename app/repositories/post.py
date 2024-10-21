@@ -15,7 +15,7 @@ class PostRepository:
         self.db = db
 
     def create_post(self, post: PostCreate, author_id: int, country_id: int) -> Post:
-        db_post = Post(**post.dict(exclude={"country_name", "images"}), author_id=author_id, country_id=country_id)
+        db_post = Post(**post.dict(exclude={"country_name", "images", "tags"}), author_id=author_id, country_id=country_id)
         self.db.add(db_post)
         self.db.commit()
         self.db.refresh(db_post)

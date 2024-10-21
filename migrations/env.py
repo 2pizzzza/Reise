@@ -8,7 +8,7 @@ from alembic import context
 from app.core.config import DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASS
 from app.db.database import Base
 from app.models.user import User
-from app.models.post import Post, Photo
+from app.models.post import Post, Photo, Tag, PostTag
 from app.models.country import Country
 from app.models.comment import Comment
 from app.models.vote import Vote

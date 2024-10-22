@@ -6,7 +6,7 @@ const Navbar = () => {
     return (
         <nav>
             <Link to="/">Главная</Link>
-            <Link to="/profile">Профиль</Link>
+            <li><Link to="/my-profile">Мой профиль</Link></li> {/* Ссылка на свой профиль */}
             <Link to="/search">Поиск</Link>
         </nav>
     );

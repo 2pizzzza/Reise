@@ -51,6 +51,20 @@ async def create_post(
     }
 
 
+@router.get("/{user_id}/posts/", response_model=List[PostResponse])
+async def get_user_photos(user_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    post_service = PostService(db)
+    photos = post_service.get_all_post_by_user(user_id)
+    return photos
+
+
+@router.get("/posts/", response_model=List[PostResponse])
+async def get_all_posts(db: Session = Depends(get_db)):
+    post_service = PostService(db)
+    posts = post_service.get_all_posts()
+    return posts
+
+
 @router.get("/posts/{post_id}")
 def read_post(post_id: int, db: Session = Depends(get_db)):
     post_service = PostService(db)
@@ -66,6 +80,8 @@ def read_post(post_id: int, db: Session = Depends(get_db)):
         "created_at": post.created_at,
         "is_visible": post.is_visible,
         "country_name": post.country.name,
+        "tag": post.tags,
+        "photos": post.photos,
         "vote_counts": vote_counts,
     }
 

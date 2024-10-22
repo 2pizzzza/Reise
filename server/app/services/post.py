@@ -1,5 +1,5 @@
 from fastapi import HTTPException
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, subqueryload, joinedload
 from starlette import status
 
 from app.repositories.post import PostRepository
@@ -55,6 +55,15 @@ class PostService:
     def get_post_vote_counts(self, post_id: int) -> dict:
         return self.post_repository.get_vote_count(post_id)
 
+    def get_all_posts(self):
+        return ((self.db.query(Post)
+                 .filter(Post.is_visible == True))
+                .options(
+            subqueryload(Post.tags),
+            subqueryload(Post.photos),
+            joinedload(Post.author)
+        ).all())
+
     def get_post(self, post_id: int):
         post = self.post_repository.get_post(post_id)
         if post is None:
@@ -63,3 +72,12 @@ class PostService:
                 detail="Post not found"
             )
         return self.post_repository.get_post(post_id)
+
+    def get_all_post_by_user(self, user_id: int):
+        return ((self.db.query(Post)
+                 .filter(Post.is_visible == True, Post.author_id == user_id))
+                .options(
+            subqueryload(Post.tags),
+            subqueryload(Post.photos),
+            joinedload(Post.author)
+        ).all())

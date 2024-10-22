@@ -25,6 +25,8 @@ class PostRepository:
 
         return db_post
 
+    def get_all_posts(self):
+        return self.db.query(Post)
     def save_photo(self, post_id: int, image: UploadFile):
         existing_photos = self.db.query(Photo).filter(Photo.post_id == post_id).count()
         if existing_photos >= 10:

@@ -42,6 +42,11 @@ class TagResponse(BaseModel):
     class Config:
         orm_mode = True
 
+class AuthorResponse(BaseModel):
+    name: str
+
+    class Config:
+        orm_mode = True
 
 class PostResponse(BaseModel):
     id: int
@@ -49,7 +54,7 @@ class PostResponse(BaseModel):
     body: str
     is_visible: bool
     created_at: datetime
-    author_id: int
+    author: AuthorResponse
     photos: List[PhotoResponse]
     tags: List[TagResponse] = []
 

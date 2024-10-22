@@ -42,11 +42,13 @@ class TagResponse(BaseModel):
     class Config:
         orm_mode = True
 
+
 class AuthorResponse(BaseModel):
     name: str
 
     class Config:
         orm_mode = True
+
 
 class PostResponse(BaseModel):
     id: int

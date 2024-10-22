@@ -6,15 +6,16 @@ from app.repositories.vote import VoteRepository
 
 
 class VoteService:
-    def __init__(self, db: Session):
+    def __init__(self, db):
+        self.db = db
         self.vote_repository = VoteRepository(db)
-        self.post_repository = PostRepository(db)
 
     def upvote(self, post_id: int, user_id: int):
         existing_vote = self.vote_repository.get_user_vote(post_id, user_id)
         if existing_vote:
             if existing_vote.vote_type == VoteType.LIKE:
                 self.vote_repository.delete_vote(existing_vote)
+                self.db.commit()
                 return -1
             else:
                 existing_vote.vote_type = VoteType.LIKE
@@ -22,6 +23,7 @@ class VoteService:
                 return 2
         else:
             self.vote_repository.create_vote(post_id, user_id, VoteType.LIKE)
+            self.db.commit()
             return 1
 
     def downvote(self, post_id: int, user_id: int):
@@ -29,6 +31,7 @@ class VoteService:
         if existing_vote:
             if existing_vote.vote_type == VoteType.DISLIKE:
                 self.vote_repository.delete_vote(existing_vote)
+                self.db.commit()
                 return 1
             else:
                 existing_vote.vote_type = VoteType.DISLIKE
@@ -36,4 +39,5 @@ class VoteService:
                 return -2
         else:
             self.vote_repository.create_vote(post_id, user_id, VoteType.DISLIKE)
+            self.db.commit()
             return -1

@@ -76,7 +76,7 @@ def read_post(post_id: int, db: Session = Depends(get_db)):
         "id": post.id,
         "title": post.title,
         "body": post.body,
-        "author_id": post.author_id,
+        "author_name": post.author.name,
         "created_at": post.created_at,
         "is_visible": post.is_visible,
         "country_name": post.country.name,

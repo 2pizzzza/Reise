@@ -63,7 +63,6 @@ class PostRepository:
         return db_post
 
     def get_vote_count(self, post_id: int) -> dict:
-        # Подсчет лайков и дизлайков
         vote_counts = (
             self.db.query(Vote.vote_type, func.count(Vote.id).label("count"))
             .filter(Vote.post_id == post_id)
@@ -76,7 +75,10 @@ class PostRepository:
     def get_post(self, post_id: int) -> Post:
         return (
             self.db.query(Post)
-            .options(joinedload(Post.photos))
+            .options(
+                joinedload(Post.photos),
+                joinedload(Post.author)
+            )
             .filter(Post.id == post_id)
             .first()
         )

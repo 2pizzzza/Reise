@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom'; // для перенаправления
-import './Home.css'; // Стили для главной страницы
+import { useNavigate } from 'react-router-dom';
+import './Home.css';
 
 const Home = () => {
     const [posts, setPosts] = useState([]);
     const [error, setError] = useState(null);
-    const navigate = useNavigate(); // используем для навигации на профиль
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchPosts = async () => {
@@ -25,8 +25,12 @@ const Home = () => {
         fetchPosts();
     }, []);
 
+    const handlePostClick = (postId) => {
+        navigate(`/post/${postId}`);
+    };
+
     const handleAuthorClick = (authorName) => {
-        navigate(`/profile/${authorName}`); // Переход на страницу профиля
+        navigate(`/profile/${authorName}`); 
     };
 
     if (error) {
@@ -40,7 +44,7 @@ const Home = () => {
     return (
         <div className="posts-container">
             {posts.map(post => (
-                <div className="post" key={post.id}>
+                <div className="post" key={post.id} onClick={() => handlePostClick(post.id)}>
                     <div className="post-header">
                         <span className="post-author" onClick={() => handleAuthorClick(post.author.name)}>
                             {post.author.name}

@@ -8,7 +8,7 @@ from app.repositories.user import UserRepository
 
 SECRET_KEY = "your_secret_key"
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 3000
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/signin")
 

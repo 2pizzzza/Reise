@@ -1,4 +1,5 @@
 from fastapi import HTTPException
+from sqlalchemy import func
 from sqlalchemy.orm import Session, subqueryload, joinedload
 from starlette import status
 
@@ -9,6 +10,7 @@ from app.schemas.country import CountryCreate
 from app.models.post import Post
 from app.repositories.user import UserRepository
 from app.repositories.tag import TagRepository
+from app.models.vote import Vote, VoteType
 
 
 class PostService:
@@ -55,6 +57,9 @@ class PostService:
     def get_post_vote_counts(self, post_id: int) -> dict:
         return self.post_repository.get_vote_count(post_id)
 
+    def get_vote_count(self, post_id: int) -> int:
+        return self.db.query(func.count(Vote.id)).filter(Vote.post_id == post_id).scalar() or 0
+
     def get_all_posts(self):
         return ((self.db.query(Post)
                  .filter(Post.is_visible == True))
@@ -66,7 +71,7 @@ class PostService:
 
     def get_post(self, post_id: int):
         post = self.post_repository.get_post(post_id)
-        if post is None:
+        if post is None or (not post.is_visible):
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Post not found"

@@ -1,17 +1,10 @@
-.posts-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px;
-}
-
-.post {
-    width: 500px;
-    margin-bottom: 30px;
+.post-detail {
+    width: 600px;
+    margin: 0 auto;
     background-color: #fff;
+    padding: 20px;
     border: 1px solid #ddd;
     border-radius: 10px;
-    padding: 15px;
 }
 
 .post-header {
@@ -20,18 +13,9 @@
     align-items: center;
 }
 
-.post-author {
+.post-author, .post-country {
     font-weight: bold;
-    cursor: pointer;
     color: black;
-}
-
-.post-author:hover {
-    text-decoration: underline;
-}
-
-.post-date {
-    color: #888;
 }
 
 .post-images img {

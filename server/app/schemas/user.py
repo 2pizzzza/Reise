@@ -41,6 +41,6 @@ class UserResponse(BaseModel):
     subscriptions: List[SubscriptionSummary] = []
     subscribers: List[SubscriptionSummary] = []
 
-class Config:
+    class Config:
         orm_mode = True
         from_attributes = True
